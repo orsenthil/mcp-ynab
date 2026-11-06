@@ -49,6 +49,14 @@ claude mcp add-json ynab --scope user '{"type":"stdio","command":"uv","args":["t
 
 See [mcp-ynab.com](https://mcp-ynab.com) for config file locations and troubleshooting.
 
+### Claude.ai (remote, self-hosted)
+
+To use it from Claude.ai, including mobile and voice, deploy your own remote instance on Cloudflare
+with OAuth login locked to your GitHub account: see [cloudflare/README.md](cloudflare/README.md).
+
+For any other HTTP host, set `MCP_TRANSPORT=streamable-http` (plus `MCP_HOST`, `MCP_PORT`,
+`MCP_ALLOWED_HOSTS`). The server serves `/mcp`, and the default transport stays `stdio`.
+
 ## Available Tools
 
 | Group | Tools |

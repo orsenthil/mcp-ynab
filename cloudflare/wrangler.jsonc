@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ynab-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+
+  // The Python MCP server, built from the repo-root Dockerfile.
+  "containers": [
+    {
+      "class_name": "YnabContainer",
+      "image": "../Dockerfile",
+      "max_instances": 1
+    }
+  ],
+  "durable_objects": {
+    "bindings": [{ "name": "YNAB_CONTAINER", "class_name": "YnabContainer" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["YnabContainer"] }],
+
+  // OAuth clients, grants and tokens. Create with:
+  //   npx wrangler kv namespace create OAUTH_KV
+  // and paste the id below.
+  "kv_namespaces": [{ "binding": "OAUTH_KV", "id": "REPLACE_WITH_KV_NAMESPACE_ID" }]
+
+  // Secrets (npx wrangler secret put <NAME>), never in this file:
+  //   YNAB_API_KEY, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, ALLOWED_GITHUB_LOGIN
+}

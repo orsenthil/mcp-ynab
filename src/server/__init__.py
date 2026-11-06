@@ -1,3 +1,7 @@
+import os
+
+from mcp.server.transport_security import TransportSecuritySettings
+
 from src.server._shared import mcp
 
 # Import domain modules to trigger @mcp.tool() registration
@@ -57,5 +61,36 @@ __all__ = [
 ]
 
 
+def _transport_security() -> TransportSecuritySettings | None:
+    """Host-header checks for HTTP mode, from MCP_ALLOWED_HOSTS.
+
+    Unset keeps the SDK default (localhost only). "*" disables the check, which is
+    only safe when the server is reachable solely through an authenticating proxy,
+    e.g. the Cloudflare Worker in cloudflare/.
+    """
+    raw = os.environ.get("MCP_ALLOWED_HOSTS", "").strip()
+    if not raw:
+        return None
+    if raw == "*":
+        return TransportSecuritySettings(enable_dns_rebinding_protection=False)
+    hosts = [h.strip() for h in raw.split(",") if h.strip()]
+    return TransportSecuritySettings(allowed_hosts=hosts)
+
+
 def main():
-    mcp.run(transport="stdio")
+    transport = os.environ.get("MCP_TRANSPORT", "stdio")
+    if transport == "stdio":
+        mcp.run(transport="stdio")
+    elif transport == "streamable-http":
+        mcp.run(
+            transport="streamable-http",
+            host=os.environ.get("MCP_HOST", "127.0.0.1"),
+            port=int(os.environ.get("MCP_PORT", "8000")),
+            # Stateless + JSON: no session affinity needed, so a container restart
+            # or cold start never strands a client mid-session.
+            stateless_http=True,
+            json_response=True,
+            transport_security=_transport_security(),
+        )
+    else:
+        raise SystemExit(f"Unsupported MCP_TRANSPORT={transport!r} (use stdio or streamable-http)")
