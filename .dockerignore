@@ -1,0 +1,11 @@
+.env
+.env.*
+.venv
+.git
+.github
+website
+cloudflare
+tests
+scripts
+**/__pycache__
+**/node_modules

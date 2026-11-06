@@ -1,0 +1,5 @@
+# Copy to .dev.vars for `npx wrangler dev`. Deployed values come from `wrangler secret put`.
+YNAB_API_KEY=
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+ALLOWED_GITHUB_LOGIN=
